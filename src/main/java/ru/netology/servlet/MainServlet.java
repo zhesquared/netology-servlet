@@ -1,5 +1,6 @@
 package ru.netology.servlet;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import ru.netology.controller.PostController;
 import ru.netology.repository.PostRepository;
 import ru.netology.service.PostService;
@@ -11,19 +12,18 @@ import javax.servlet.http.HttpServletResponse;
 public class MainServlet extends HttpServlet {
     private PostController controller;
 
-    private final String get = "GET";
+    private final String GET = "GET";
 
-    private final String delete = "DELETE";
+    private final String DELETE = "DELETE";
 
-    private final String post = "POST";
+    private final String POST = "POST";
 
-    private final String mainPath = "/api/posts";
+    private final String MAIN_PATH = "/api/posts";
 
     @Override
     public void init() {
-        final var repository = new PostRepository();
-        final var service = new PostService(repository);
-        controller = new PostController(service);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("ru.netology");
+        controller = context.getBean(PostController.class);
     }
 
     @Override
@@ -33,21 +33,21 @@ public class MainServlet extends HttpServlet {
             final var path = req.getRequestURI();
             final var method = req.getMethod();
             // primitive routing
-            if (method.equals(get) && path.equals(mainPath)) {
+            if (method.equals(GET) && path.equals(MAIN_PATH)) {
                 controller.all(resp);
                 return;
             }
-            if (method.equals(get) && path.matches(mainPath + "\\d+")) {
+            if (method.equals(GET) && path.matches(MAIN_PATH + "\\d+")) {
                 // easy way
                 final var id = getId(path);
                 controller.getById(id, resp);
                 return;
             }
-            if (method.equals(post) && path.equals(mainPath)) {
+            if (method.equals(POST) && path.equals(MAIN_PATH)) {
                 controller.save(req.getReader(), resp);
                 return;
             }
-            if (method.equals(delete) && path.matches(mainPath + "\\d+")) {
+            if (method.equals(DELETE) && path.matches(MAIN_PATH + "\\d+")) {
                 // easy way
                 final var id = getId(path);
                 controller.removeById(id, resp);
